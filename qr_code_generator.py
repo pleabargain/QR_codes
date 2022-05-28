@@ -1,3 +1,6 @@
+# from
+# https://medium.com/towards-data-science/generate-qrcode-with-python-in-5-lines-42eda283f325
+
 # requirements
 # pip install pillow
 # pip install qrcode
