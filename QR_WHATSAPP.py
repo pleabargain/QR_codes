@@ -24,53 +24,68 @@
 # URL		Optional	A URL pointing to a website that represents the person in some way.	URL:http://www.johndoe.com
 # END		Required	All vCards must end with this property.	END:VCARD
 
+###
+# read a csv with phone number and booking code.
+# include booking code in the message in Whatsapp
+# sample message:  https://wa.me/1XXXXXXXXXX?text=I'm%20interested%20in%20your%20car%20for%20sale
 
-import csv
+
+#  https://wa.me/{"TYPE=CELL:"}?text={BOOKING_CODE}{MESSAGE}
+
+
+
+# import csv
 # import pillow
 import qrcode
 import time
+from urllib.parse import quote
 
 
 # create a function that returns current time in minutes and seconds
+# move to tools lib in the future
 def get_current_time():
     return time.strftime("%H_%M_%S")
 
-get_current_time()
 
-
-# open a csv for reading as UTF-8   (with the encoding parameter)
-with open('QR_code_sample_data.csv', encoding='utf-8') as csvfile:
-
-    # creating a csv reader object 
-    csvreader = csv.reader(csvfile) 
-    # extracting field names through first row 
-    fields = next(csvreader) 
-    # extracting each data row one by one 
-    for row in csvreader: 
-        # printing each row
-        print(row)
-        # print first cell in row 0
-        print(row[0])
-        input_data = "BEGIN:VCARD\n"
-        input_data += "VERSION:4.0\n"
-        input_data += "FN:" + row[0] + "\n"
-        input_data += "END:VCARD" + "\n"
-        # save the input_data to a separte file  using the name of the first cell in row 0
-        # file extension .vcard
-        with open ('aCSV_qrcode' + row[0] + ".vcard", "w") as f:
-            f.write(input_data)
-
-        
-        #Creating an instance of qrcode version 4.0
-        qr = qrcode.QRCode(
-                version=4,
-                box_size=10,
-                border=5)
-        qr.add_data(input_data)
-        qr.make(fit=True)
-        img = qr.make_image(fill='black', back_color='white')
-        # give the name of the image from first cell in CSV
-        img.save(get_current_time()+'_CSV_qrcode' + row[0] + '.png')
-        
+def create_Whatsapp_QR(cell_number="971568753642",
+                        booking_code="6t7y8u",
+                        name=None,
+                        message="Please contact me ASAP"):
+    # create a QR code for Whatsapp
+    # https://wa.me/{cell_number}?text={BOOKING_CODE}{MESSAGE}
+    # message += " My booking code is: " + booking_code
     
+    if name is None:
+        name = ""
+    else:
+        message += "My name is: " + name + ".\n"
+        message += "My booking code is: " + booking_code
+    # print(message)
+    message = quote(message)
+    # print(message)
+    
+
+    result = f"https://wa.me/{cell_number}?text={message}"
+    print(result)
+    qr = qrcode.QRCode(
+                    version=4,
+                    box_size=10,
+                    border=5)
+    qr.add_data(result)
+    qr.make(fit=True)
+    img = qr.make_image(fill='black', back_color='white')
+    # give the name of the image from first cell in CSV
+    img.save(get_current_time() + "_" + booking_code +'_whatsapp_qrcode' + '.png')
+    print("Whatsapp QR code image generated")
+
+
+
+
+
+
+
+
+
+if __name__ == "__main__":
+    create_Whatsapp_QR(name ="Dennis")
 
